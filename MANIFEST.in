@@ -1,0 +1,2 @@
+recursive-include lifeograph_db_converter *.py
+include requirements.txt
