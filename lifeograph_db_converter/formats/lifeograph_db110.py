@@ -89,14 +89,16 @@ class LifeographDb110Format(Format):
                         r'^l.(.+)$': self.parse_meta_language,
                         r'^S.(\d+)$': self.parse_meta_startup_action,
                         r'^L.(\d+)$': self.parse_meta_last_element,
+                        r'^([um]).*$': self.parse_entries_tag_theme,
+                        r'^f.*$': self.parse_entries_filter,
                         }
         self.map_block(meta_lines, meta_mapping, diary)
         # Entries
         entries_lines = entries_data.split(b'\n')
         entries_mapping = {r'^.{,1}$': self.parse_dummy,
                            r'^ID(\d+)$': self.parse_meta_id,
-                           r'^([Ee])(.)(\d+)$': self.parse_entries_entry,
-                           r'^D([rh])(\d+)$': self.parse_entries_date,
+                           r'^([Ee])(.)(([^\d])([^\d]))?(\d+)$': self.parse_entries_entry,
+                           r'^D([rhs])(\d+)$': self.parse_entries_date,
                            r'^M.(.+)$': self.parse_entries_theme,
                            r'^T.(.+)$': self.parse_entries_tag,
                            r'^l.(.+)$': self.parse_entries_language,
@@ -196,10 +198,12 @@ class LifeographDb110Format(Format):
         diary.last_element = int(m.group(1))
 
     def parse_entries_entry(self, m, diary):
+        # TODO: m.group(4) == 'h' # filter defauult
+        # TODO: m.group(5) # todo status
         diary.entries.append(dict(
             trashed=m.group(1) == 'e',
             favorite=m.group(2) == 'f',
-            timestamp=int(m.group(3)),
+            timestamp=int(m.group(6)),
             themes=[],
             tags=[],
             paragraphs=[],
@@ -209,6 +213,7 @@ class LifeographDb110Format(Format):
     def parse_entries_date(self, m, diary):
         key = {'r': 'date_created',
                'h': 'date_changed',
+               's': 'date_status',
                }[m.group(1)]
         diary.entries[-1].update({key: int(m.group(2))})
 
@@ -225,3 +230,9 @@ class LifeographDb110Format(Format):
 
     def parse_entries_paragraph(self, m, diary):
         diary.entries[-1]['paragraphs'].append(m.group(1))
+
+    def parse_entries_tag_theme(self, m, diary):
+        pass # TODO: do something
+
+    def parse_entries_filter(self, m, diary):
+        pass  # TODO: do something
