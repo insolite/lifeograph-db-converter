@@ -78,7 +78,7 @@ class LifeographDb110Format(Format):
         meta_mapping = {r'^.{,2}$': self.parse_dummy,
                         r'^ID(\d+)$': self.parse_meta_id,
                         r'^T(.)(.+)$': self.parse_meta_tag_categories,
-                        r'^t.(.+)$': self.parse_meta_tags,
+                        r'^t(.)(.+)$': self.parse_meta_tags,
                         r'^C(.)(.+)$': self.parse_meta_chapter_categories,
                         r'^o(.)((\d+)\t)?(.+)$': self.parse_meta_o_chapters,
                         r'^c(.)((\d+)\t)?(.+)$': self.parse_meta_chapters,
@@ -132,9 +132,15 @@ class LifeographDb110Format(Format):
         ))
 
     def parse_meta_tags(self, m, diary):
-        diary.tags.append(dict(
-            name=m.group(1),
-        ))
+        flag = m.group(1)
+        if flag == 'c':
+            pass # TODO: tag set_chart_type
+        elif flag == 'u':
+            pass # TODO: tag set_unit
+        else: # Must be ' ' for 1010+ versions, but I'm not sure aboout 110
+            diary.tags.append(dict(
+                name=m.group(2),
+            ))
 
     def parse_meta_chapter_categories(self, m, diary):
         # TODO:
